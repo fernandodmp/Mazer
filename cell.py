@@ -15,6 +15,7 @@ class Cell:
         self.size = size
         self.starting_cell = False
         self.exit_cell = False
+        self.dead_end = False
         self.borders = {
             'top' : True, 
             'right': True, 
@@ -85,3 +86,9 @@ class Cell:
 
     def set_not_visited(self):
         self.visited = False
+
+    def set_leads_to_dead_end(self):
+        self.dead_end = True
+    
+    def leads_to_dead_end(self):
+        return self.dead_end

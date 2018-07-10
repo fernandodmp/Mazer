@@ -2,7 +2,7 @@
     File name: mazer.py
     Author: Fernando Passos, Gildásio Junio, Felipe Regino
     Date created: 09/07/2018
-    Date last modified: 09/07/2018
+    Date last modified: 10/07/2018
     Python Version: 3.6.5
 '''
 
@@ -47,6 +47,7 @@ white = pygame.Color(255,255,255)
 yellow = pygame.Color(240,230,140)
 green = pygame.Color(0,150,0)
 blue = pygame.Color(0, 0, 200)
+red = pygame.Color(150,0, 0)
 
 
 #Makes the computation for generating the maze
@@ -99,11 +100,15 @@ def draw_generation():
             #If the cell is a starter cell it is painted blue
             if grid[i][j].is_starter():
                 pygame.draw.rect(screen, blue, (x + 1, y + 1, cell_size, cell_size))
-            #If the cell being currently visited or is an exit_cell it is painted green
+            #If the cell is an exit_cell it is painted green
             elif grid[i][j].is_exit():
                 pygame.draw.rect(screen, green, (x + 1, y + 1, cell_size, cell_size))
+            #If the cell is being visited it is painted yellos
             elif grid[i][j].is_being_visited():
                 pygame.draw.rect(screen, yellow, (x + 1, y + 1, cell_size, cell_size))
+            #if the current cell is in a path that leads to a dead end it's painted grey again
+            elif grid[i][j].leads_to_dead_end():
+                pygame.draw.rect(screen, grey, (x + 1, y + 1, cell_size, cell_size))
             #If the cell was already visited it's painted purple
             elif grid[i][j].was_visited():
                 pygame.draw.rect(screen, white, (x + 1, y + 1, cell_size, cell_size))
@@ -153,9 +158,9 @@ def set_maze_exit():
 
 #Initialize the generation algorithm by creating a cell stack, picking a random starter cell, and drawing the initial objects to the screen
 cell_stack = []
-#initial_row = random.randint(0, rows - 1)
-#initial_col = random.randint(0, cols - 1)
-current = grid[0][0]
+initial_row = random.randint(0, rows - 1)
+initial_col = random.randint(0, cols - 1)
+current = grid[initial_row][initial_col]
 current.set_starter()
 current.set_on_visit()
 generating = True
@@ -209,7 +214,7 @@ while(waiting):
 
 #Makes the computation for solving the maze
 def solver():
-    neighbors = []
+    unvisited_neighbors = []
     current.set_visited()
     i, j = current.get_position()
     borders = current.get_cell_borders()
@@ -231,22 +236,22 @@ def solver():
     else:
         left_neighbor = None
     #Check the borders to see if there is an unvisited neighbor among the candidates and if there is add the neighbor to the nighbors list
-    if not borders['top']:
-        if  top_neighbor is not None and (not top_neighbor.was_visited()):
-            neighbors.append(top_neighbor)
-    if  right_neighbor is not None and (not right_neighbor.was_visited()):
-        if not borders['right']:
-            neighbors.append(right_neighbor)
-    if  bottom_neighbor is not None and (not bottom_neighbor.was_visited()):
-        if not borders['bottom']:
-            neighbors.append(bottom_neighbor)
-    if  left_neighbor is not None and (not left_neighbor.was_visited()):
-        if not borders['left']:
-            neighbors.append(left_neighbor)
+    if  top_neighbor is not None and (not top_neighbor.was_visited()) and not borders['top']:
+        unvisited_neighbors.append(top_neighbor)
+    if  right_neighbor is not None and (not right_neighbor.was_visited()) and not borders['right']:
+        unvisited_neighbors.append(right_neighbor)
+    if  bottom_neighbor is not None and (not bottom_neighbor.was_visited()) and not borders['bottom']:
+        unvisited_neighbors.append(bottom_neighbor)
+    if  left_neighbor is not None and (not left_neighbor.was_visited()) and not borders['left']:
+        unvisited_neighbors.append(left_neighbor)
+
+    if current.is_dead_end() and not current.is_exit():
+        current.set_leads_to_dead_end()       
+
     #If it was possible to find one or more unvisited neighbors, choose randomly one out of the list to be the sucessor     
-    if len(neighbors) > 0:
-        r = random.randint(0, len(neighbors) - 1)
-        return neighbors[r]
+    if len(unvisited_neighbors) > 0:
+        r = random.randint(0, len(unvisited_neighbors) - 1)
+        return unvisited_neighbors[r]
     else:
         return None
 
@@ -255,6 +260,41 @@ for i in range(rows):
         for j in range(cols):
             grid[i][j].set_not_visited()
 
+
+#Check if all the the neighbors of the chosen cell were already visited
+def check_all_neighbors_visited():
+    unvisited_neighbors = []
+    borders = chosen.get_cell_borders()
+    i, j = chosen.get_position()
+    if i > 0:
+        top_neighbor = grid[i - 1][j]
+    else:
+        top_neighbor = None
+    if j > 0:
+        right_neighbor = grid[i][j - 1]
+    else:
+        right_neighbor = None
+    if i < rows - 1:
+        bottom_neighbor = grid[i + 1][j]
+    else:
+        bottom_neighbor = None
+    if j < cols - 1 :
+        left_neighbor = grid[i][j + 1]
+    else:
+        left_neighbor = None
+    if  top_neighbor is not None and (not top_neighbor.was_visited()) and not borders['top']:
+        unvisited_neighbors.append(top_neighbor)
+    if  right_neighbor is not None and (not right_neighbor.was_visited()) and not borders['right']:
+        unvisited_neighbors.append(right_neighbor)
+    if  bottom_neighbor is not None and (not bottom_neighbor.was_visited()) and not borders['bottom']:
+        unvisited_neighbors.append(bottom_neighbor)
+    if  left_neighbor is not None and (not left_neighbor.was_visited()) and not borders['left']:
+        unvisited_neighbors.append(left_neighbor)
+
+    if len(unvisited_neighbors) == 0:
+        return True
+    return False
+   
 #DEBUG
 #for i in range(rows):
 #    print(grid[i][cols - 2].get_cell_borders())
@@ -266,7 +306,7 @@ for i in range(rows):
 #   print(grid[i][0].get_cell_borders())
 
 #Pick the starting cell as the current cell 
-current = grid[0][0]
+current = grid[initial_row][initial_col]
 current.set_on_visit()
 draw_generation()
 while(solving):
@@ -291,7 +331,12 @@ while(solving):
     #If it wasn't possible, pop the most recent cell from the stack
     else:
         current.set_not_on_visit()
-        current = cell_stack.pop()
+        chosen = cell_stack.pop()
+        #If the last visited cell(the son of the current cell in the "tree") is a dead-end and all the other neighbors were already visited
+        #Then there is no avaliable path from this cell to the exit on this path
+        if current.leads_to_dead_end() and check_all_neighbors_visited():
+            chosen.set_leads_to_dead_end()
+        current = chosen
         current.set_on_visit()
     draw_generation()
 
@@ -299,5 +344,5 @@ while(solving):
 while(waiting_to_quit):
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
-            solving = False
+            waiting_to_quit = False
             pygame.quit()
