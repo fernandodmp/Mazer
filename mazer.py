@@ -326,6 +326,7 @@ while(solving):
         current.set_on_visit()
         #Check if the next neighbor is the exit if it is, the maze is solved
         if chosen.is_exit():
+            pygame.image.save(screen, 'Solved_Maze.jpeg')
             solving = False
             waiting_to_quit = True
     #If it wasn't possible, pop the most recent cell from the stack
