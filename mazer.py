@@ -14,6 +14,7 @@ from cell import Cell
 
 if len(sys.argv) < 4:
     print("Usage: python mazer.py [SCREEN SIZE] [CELL SIZE] [EXECUTION SPEED] ")
+    print("After Maze Generation Press Any Key To Start Solving")
     sys.exit()
 
 #Create the generator GUI

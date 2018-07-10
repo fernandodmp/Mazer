@@ -10,3 +10,6 @@ A simple maze generator and solver using python and pygame
 - SCREEN SIZE: Is the size of the screen box side. Recommended 500
 - CELL SIZE: Is the size of the cell box side. Recommended 50
 - EXECUTION SPEED: Is the amount of frames per second on which the execution is animated. Recommended: 5
+
+### Solving
+After the maze generation is over, press any key to start solving it
