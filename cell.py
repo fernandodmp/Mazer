@@ -1,8 +1,8 @@
 '''
     File name: cell.py
-    Author: Fernando Passos, Gildásio Junio, Felipe Regino
+    Author: Fernando Passos, Gildásio Junior, Felipe Regino
     Date created: 09/07/2018
-    Date last modified: 09/07/2018
+    Date last modified: 10/07/2018
     Python Version: 3.6.5
 '''
 import pygame
