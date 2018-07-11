@@ -2,7 +2,7 @@
     File name: mazer.py
     Author: Fernando Passos, Gildásio Junior, Felipe Regino
     Date created: 09/07/2018
-    Date last modified: 10/07/2018
+    Date last modified: 11/07/2018
     Python Version: 3.6.5
 '''
 
@@ -15,10 +15,12 @@ from cell import Cell
 if len(sys.argv) < 4:
     print("Usage: python mazer.py [SCREEN SIZE] [CELL SIZE] [EXECUTION SPEED] ")
     print("After Maze Generation Press Any Key To Start Solving")
+    print("After Maze Solving Press Any Key To Start Over")
     sys.exit()
 
 
 restart = True
+count = 1
 while(restart):
 
     #Create the generator GUI
@@ -192,7 +194,7 @@ while(restart):
             if(len(cell_stack) == 0):
                 set_maze_exit()
                 draw_generation()
-                pygame.image.save(screen, 'Maze.jpeg')
+                pygame.image.save(screen, 'Maze_'+str(count)+'.jpeg')
                 generating = False
                 waiting = True
             #If the stack isn't empty and there were no avaliable neighbors then pick the most recent from the stack
@@ -330,7 +332,8 @@ while(restart):
             current.set_on_visit()
             #Check if the next neighbor is the exit if it is, the maze is solved
             if chosen.is_exit():
-                pygame.image.save(screen, 'Solved_Maze.jpeg')
+                current.set_not_on_visit()
+                pygame.image.save(screen, 'Solved_Maze_'+str(count)+'.jpeg')
                 solving = False
                 waiting_to_quit = True
         #If it wasn't possible, pop the most recent cell from the stack
@@ -356,3 +359,4 @@ while(restart):
             else:
                 if i.type == pygame.KEYDOWN:
                     waiting = False
+                    count += 1

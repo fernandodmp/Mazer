@@ -1,6 +1,5 @@
 __pycache__/
 *.py[cod]
 *$py.class
-Maze.jpeg
-Solved_Maze.jpeg
+*.jpeg
 venv
