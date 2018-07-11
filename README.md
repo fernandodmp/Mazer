@@ -6,6 +6,7 @@ A simple maze generator and solver using python and pygame
 
 - Python 3.6.5
 - Pygame
+
 `pip install -r requirements.txt`
 
 ### How to use
